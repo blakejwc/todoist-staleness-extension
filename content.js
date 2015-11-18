@@ -3,13 +3,23 @@ var observer = new MutationObserver(function() {
       itemArray = JSON.parse(localStorage.Items);
 
   function drawSquare(ctx, r, c) {
-      ctx.beginPath();
+    ctx.beginPath();
     ctx.rect(c*7, r*7, 4, 4);
     ctx.fill();
   }
 
-  function drawSquares(ctx, count) {
-      var r,
+  function fillCanvas(ctx) {
+    ctx.beginPath()
+    ctx.rect(3, 3, 12, 12);
+    ctx.fill()
+  }
+
+  function drawSquares(canvas, count) {
+    var r, numSq,
+        ctx = canvas.getContext('2d');
+    if (count > 9) {
+      fillCanvas(ctx);
+    } else {
       numSq = count > 9 ? 9 : count;
 
       ctx.fillStyle = '#000000';
@@ -21,6 +31,7 @@ var observer = new MutationObserver(function() {
               numSq--;
           }
       }
+    }
   }
 
   function getDaysBetween(today, dateAdded) {
@@ -29,7 +40,7 @@ var observer = new MutationObserver(function() {
     return Math.round(dateDiff/dateFactor);
   }
 
-  $('.task_item').not('.reorder_item').each(function () {
+  $('div.list_editor').find('.task_item').not('.reorder_item').each(function () {
     var el = $(this),
         itemId, item, dateAdded, canvas, context, stalenessEl;
 
@@ -44,12 +55,24 @@ var observer = new MutationObserver(function() {
       stalenessEl.css('padding-top', '15px');
 
       canvas = el.find('#staleness')[0];
-      context = canvas.getContext('2d');
 
       canvas.width = 18;
       canvas.height = 18;
 
-      drawSquares(context, getDaysBetween(today, dateAdded));
+      drawSquares(canvas, getDaysBetween(today, dateAdded));
+    }
+  });
+
+  $('div#GB_window').find('.task_item').each(function () {
+    var el = $(this),
+        itemId, item, dateAdded;
+
+    if (el.find('.staleness-container').length === 0) {
+
+      itemId = el[0].id.slice(5);
+      item = itemArray[itemId] || {};
+      dateAdded = new Date(item.date_added);
+      el.find('tr').prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
     }
   });
 });
