@@ -1,5 +1,6 @@
 var observer = new MutationObserver(function() {
-  var today = new Date();
+  var today = new Date(),
+      itemArray = JSON.parse(localStorage.Items);
 
   function getDaysBetween(today, dateAdded) {
     var dateDiff = today-dateAdded,
@@ -14,10 +15,9 @@ var observer = new MutationObserver(function() {
     if (el.find('.staleness-container').length === 0) {
 
       itemId = el[0].id.slice(5);
-      item = JSON.parse(localStorage.Items)[itemId];
+      item = itemArray[itemId];
       dateAdded = new Date(item.date_added);
-      el.find('.invisible_space').text(getDaysBetween(today, dateAdded));
-      //el.prepend('<div class="staleness-container"></div>').find('.staleness-container').text(getDaysBetween(today, dateAdded));
+      el.find('tr').prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
     }
   });
 });
