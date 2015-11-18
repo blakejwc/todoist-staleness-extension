@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Todoist Staleness Extension",
+  "version": "0.1",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://todoist.com/*"
+      ],
+      "js": ["jquery-2.1.4.min.js", "content.js"]
+    }
+  ]
+}
