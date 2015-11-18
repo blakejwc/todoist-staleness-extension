@@ -15,7 +15,7 @@ var observer = new MutationObserver(function() {
     if (el.find('.staleness-container').length === 0) {
 
       itemId = el[0].id.slice(5);
-      item = itemArray[itemId];
+      item = itemArray[itemId] || {};
       dateAdded = new Date(item.date_added);
       el.find('tr').prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
     }
