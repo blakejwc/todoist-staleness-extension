@@ -1,6 +1,9 @@
 var observer = new MutationObserver(function() {
   var today = new Date(),
-      itemArray = JSON.parse(localStorage.Items);
+      itemCache = JSON.parse(localStorage.Items),
+      taskEditor = $('div#editor'),
+      taskNotesModal = $('div#GB_window'),
+      taskCompletedList = taskEditor.find('div#completed_app');
 
   function drawSquare(ctx, r, c) {
     ctx.beginPath();
@@ -9,9 +12,9 @@ var observer = new MutationObserver(function() {
   }
 
   function fillCanvas(ctx) {
-    ctx.beginPath()
+    ctx.beginPath();
     ctx.rect(4, 4, 10, 10);
-    ctx.fill()
+    ctx.fill();
   }
 
   function drawSquares(canvas, count) {
@@ -38,50 +41,67 @@ var observer = new MutationObserver(function() {
     return Math.round(dateDiff/dateFactor);
   }
 
-  $('div#editor').find('.task_item').not('.reorder_item').each(function () {
-    var el = $(this),
-        itemId, item, dateAdded, canvas, context, stalenessEl;
+  // Will esplode on completed list
+  if (taskCompletedList.length === 0) {
 
-    if (el.find('.staleness-container').length === 0) {
-      if (el.find('img.cmp_recurring').length === 0) {
+    // The reorder item is not an actual task
+    taskEditor.find('.task_item').not('.reorder_item').each(function () {
+      var taskTableRow = $(this).find('tr'),
+          itemId, item, dateAdded, canvas, stalenessEl;
 
-        itemId = el[0].id.slice(5);
-        item = itemArray[itemId] || {};
-        dateAdded = new Date(item.date_added);
+      // skip if we already added a staleness container
+      if (taskTableRow.find('.staleness-container').length === 0) {
 
-        el.find('tr').prepend('<td class="staleness-container"><canvas id="staleness"></canvas></td>');
+        // recurring tasks are handled differently
+        if (taskTableRow.find('img.cmp_recurring').length === 0) {
 
-        stalenessEl = el.find('td.staleness-container');
-        stalenessEl.css('padding-right', '5px');
-        stalenessEl.css('padding-top', '15px');
+          // The id is on the task item element *Be warry when refactoring
+          itemId = $(this)[0].id.slice(5);
+          item = itemCache[itemId] || {};
+          dateAdded = new Date(item.date_added);
 
-        canvas = stalenessEl.find('#staleness')[0];
+          // Add an element to indicate staleness
+          taskTableRow.prepend('<td class="staleness-container"><canvas id="staleness"></canvas></td>');
 
-        canvas.width = 18;
-        canvas.height = 18;
+          // edit the staleness containter
+          stalenessEl = taskTableRow.find('td.staleness-container');
+          stalenessEl.css('padding-right', '5px');
+          stalenessEl.css('padding-top', '15px');
 
-        drawSquares(canvas, getDaysBetween(today, dateAdded));
-      } else {
-        el.find('tr').prepend('<td class="staleness-container"></td>').find('.staleness-container').css('padding-right', '23px');
+          // edit the staleness canvas
+          canvas = stalenessEl.find('#staleness')[0];
+          canvas.width = 18;
+          canvas.height = 18;
+
+          // add the staleness indicator
+          drawSquares(canvas, getDaysBetween(today, dateAdded));
+        } else {
+          // Handle the recurreing tasks by creating invisible space
+          taskTableRow.prepend('<td class="staleness-container"></td>').find('.staleness-container').css('padding-right', '23px');
+        }
       }
-    }
-  });
+    });
+  }
 
-  $('div#GB_window').find('.task_item').each(function () {
-    var el = $(this),
+  // Get the task in the task notes modal separately
+  taskNotesModal.find('.task_item').each(function () {
+    var taskTableRow = $(this).find('tr'),
         itemId, item, dateAdded;
 
-    if (el.find('.staleness-container').length === 0) {
+    if (taskTableRow.find('.staleness-container').length === 0) {
 
-      itemId = el[0].id.slice(5);
-      item = itemArray[itemId] || {};
+      // The id is on the task item element *Be warry when refactoring
+      itemId = $(this)[0].id.slice(5);
+      item = itemCache[itemId] || {};
       dateAdded = new Date(item.date_added);
-      el.find('tr').prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
+
+      // Add element containing the days since the task was created
+      taskTableRow.prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
     }
   });
 });
 
 observer.observe(document, {
   subtree: true,
-  attributes: true
+  childList: true
 });
