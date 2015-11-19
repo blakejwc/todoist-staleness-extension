@@ -37,8 +37,8 @@ var observer = new MutationObserver(function() {
 
   function getDaysBetween(today, dateAdded) {
     var dateDiff = today-dateAdded,
-        dateFactor = 1000*60*60*24;
-    return Math.round(dateDiff/dateFactor);
+        msPerDay = 1000*60*60*24;
+    return Math.round(dateDiff/msPerDay);
   }
 
   // Will esplode on completed list
