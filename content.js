@@ -3,7 +3,10 @@ var observer = new MutationObserver(function() {
       itemCache = JSON.parse(localStorage.Items),
       taskEditor = $('div#editor'),
       taskNotesModal = $('div#GB_window'),
-      taskCompletedList = taskEditor.find('div#completed_app');
+      taskCompletedList = taskEditor.find('div#completed_app'),
+      utfBlackSun = '&#9728',
+      utfComet = '&#9732',
+      utfCoffee = '&#9749';
 
   function drawSquare(ctx, r, c) {
     /**
@@ -61,16 +64,18 @@ var observer = new MutationObserver(function() {
 
           if (daysBetween === 0) {
             // 0 days get black sun
-            stalenessContainer = taskTableRow.prepend('<td class="staleness-container">&#9728</td>').find('.staleness-container');
-            stalenessContainer.css('padding-right', '1px');
-            stalenessContainer.css('padding-top', '4px');
+            stalenessContainer = taskTableRow.prepend('<td class="staleness-container">' + utfBlackSun + '</td>').find('.staleness-container');
+            stalenessContainer.css('padding-right', '5px');
+            stalenessContainer.css('padding-top', '6px');
+            stalenessContainer.css('padding-bottom', '11px');
             stalenessContainer.css({'font-size': 24});
           }
           else if (daysBetween > 9) {
             // Greate that 9 days get comet of dooooom!
-            stalenessContainer = taskTableRow.prepend('<td class="staleness-container">&#9732</td>').find('.staleness-container');
-            stalenessContainer.css('padding-right', '1px');
-            stalenessContainer.css('padding-top', '4px');
+            stalenessContainer = taskTableRow.prepend('<td class="staleness-container">' + utfComet + '</td>').find('.staleness-container');
+            stalenessContainer.css('padding-right', '5px');
+            stalenessContainer.css('padding-top', '6px');
+            stalenessContainer.css('padding-bottom', '11px');
             stalenessContainer.css({'font-size': 24});
           } else {
             // Add an element to indicate staleness
@@ -92,9 +97,10 @@ var observer = new MutationObserver(function() {
           }
         } else {
           // Recurring tasks get coffee character
-          stalenessContainer = taskTableRow.prepend('<td class="staleness-container">&#9749</td>').find('.staleness-container');
-          stalenessContainer.css('padding-right', '1px');
-          stalenessContainer.css('padding-top', '4px');
+          stalenessContainer = taskTableRow.prepend('<td class="staleness-container">' + utfCoffee + '</td>').find('.staleness-container');
+          stalenessContainer.css('padding-right', '5px');
+          stalenessContainer.css('padding-top', '6px');
+          stalenessContainer.css('padding-bottom', '11px');
           stalenessContainer.css({'font-size': 24});
         }
       }
@@ -104,7 +110,7 @@ var observer = new MutationObserver(function() {
   // Get the task in the task notes modal separately
   taskNotesModal.find('.task_item').each(function () {
     var taskTableRow = $(this).find('tr'),
-        itemId, item, dateAdded;
+        itemId, item, dateAdded, stalenessContainer;
 
     if (taskTableRow.find('.staleness-container').length === 0) {
 
@@ -114,7 +120,9 @@ var observer = new MutationObserver(function() {
       dateAdded = new Date(item.date_added);
 
       // Add element containing the days since the task was created
-      taskTableRow.prepend('<td class="staleness-container"></td>').find('.staleness-container').text(getDaysBetween(today, dateAdded)).css('padding-right', '5px');
+      stalenessContainer = taskTableRow.prepend('<td class="staleness-container"></td>').find('.staleness-container');
+      stalenessContainer.text(getDaysBetween(today, dateAdded));
+      stalenessContainer.css('padding-right', '5px');
     }
   });
 });
